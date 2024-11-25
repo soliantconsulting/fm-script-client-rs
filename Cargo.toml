@@ -1,6 +1,6 @@
 [package]
 name = "fm-script-client"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Ben Scholzen 'DASPRiD' <mail@dasprids.de>"]
 description = "Async client to execute scripts on FileMaker servers through Data- and OData API"
