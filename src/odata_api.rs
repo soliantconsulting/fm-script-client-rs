@@ -67,7 +67,7 @@ struct ErrorResponseBody {
 impl ScriptClient for ODataApiScriptClient {
     async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
         &self,
-        script_name: &str,
+        script_name: impl Into<String> + Send,
         parameter: Option<P>,
     ) -> Result<T, Error> {
         let mut url = Url::parse(&format!(
@@ -79,7 +79,7 @@ impl ScriptClient for ODataApiScriptClient {
             },
             self.connection.hostname,
             self.connection.database,
-            script_name,
+            script_name.into(),
         ))?;
 
         if let Some(port) = self.connection.port {

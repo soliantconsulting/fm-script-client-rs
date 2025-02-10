@@ -211,7 +211,7 @@ struct ErrorResponseBody {
 impl ScriptClient for DataApiScriptClient {
     async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
         &self,
-        script_name: &str,
+        script_name: impl Into<String> + Send,
         parameter: Option<P>,
     ) -> Result<T, Error> {
         let token = self.get_token().await?;
@@ -226,7 +226,7 @@ impl ScriptClient for DataApiScriptClient {
         let body = RequestBody {
             query,
             limit: 1,
-            script: script_name.to_string(),
+            script: script_name.into(),
             script_param: Some(serde_json::to_string(&parameter)?),
         };
 

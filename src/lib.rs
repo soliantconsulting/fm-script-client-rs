@@ -55,7 +55,7 @@ pub trait ScriptClient {
     /// ```
     async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
         &self,
-        script_name: &str,
+        script_name: impl Into<String> + Send,
         parameter: Option<P>,
     ) -> Result<T, Error>;
 
@@ -126,12 +126,17 @@ impl Connection {
     ///
     /// let connection = Connection::new("example.com", "test_sb", "foo", "bar");
     /// ```
-    pub fn new(hostname: &str, database: &str, username: &str, password: &str) -> Connection {
+    pub fn new(
+        hostname: impl Into<String>,
+        database: impl Into<String>,
+        username: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Connection {
         Self {
-            hostname: hostname.to_string(),
-            database: database.to_string(),
-            username: username.to_string(),
-            password: password.to_string(),
+            hostname: hostname.into(),
+            database: database.into(),
+            username: username.into(),
+            password: password.into(),
             port: None,
             disable_tls: false,
         }
@@ -207,5 +212,28 @@ impl TryFrom<&str> for Connection {
     /// ```
     fn try_from(url: &str) -> Result<Self, Self::Error> {
         Url::parse(url)?.try_into()
+    }
+}
+
+impl TryFrom<String> for Connection {
+    type Error = Error;
+
+    /// Converts a `String` into a [`Connection`].
+    ///
+    /// Connection strings must follow this format:
+    ///
+    /// `https://username:password@example.com/database`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fm_script_client::Connection;
+    ///
+    /// let connection: Connection = "https://username:password@example.com/database".to_string()
+    ///     .try_into()
+    ///     .unwrap();
+    /// ```
+    fn try_from(url: String) -> Result<Self, Self::Error> {
+        Url::parse(&url)?.try_into()
     }
 }
