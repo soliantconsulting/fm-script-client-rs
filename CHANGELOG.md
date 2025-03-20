@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.1.0...v1.2.0) (2025-03-20)
+
+
+### Features
+
+* bump minor dependencies ([40891da](https://github.com/soliantconsulting/fm-script-client-rs/commit/40891dab2c0d2f45accfc1125b37c84c7269c33f))
+
 # [1.1.0](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.0.0...v1.1.0) (2025-02-10)
 
 
