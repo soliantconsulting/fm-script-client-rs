@@ -35,6 +35,7 @@ pub trait ScriptClient {
     ///     # ).as_str().try_into().unwrap();
     ///     # let mock = server
     ///     #     .mock("POST", "/fmi/odata/v4/test/Script.my_script")
+    ///     #     .match_header("content-length", "36")
     ///     #     .with_body(serde_json::json!({
     ///     #         "scriptResult": {
     ///     #             "code": 0,
