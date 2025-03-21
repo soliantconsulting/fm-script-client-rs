@@ -120,6 +120,8 @@ impl DataApiScriptClient {
             .client
             .post(url)
             .basic_auth(&self.connection.username, Some(&self.connection.password))
+            .header("Content-Type", "application/json")
+            .body("{}")
             .send()
             .await?;
 
@@ -188,7 +190,7 @@ struct Token {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct RequestBody<T> {
-    query: HashMap<String, String>,
+    query: Vec<HashMap<String, String>>,
     limit: u8,
     script: String,
     #[serde(skip_serializing_if = "Option::is_none", rename = "script.param")]
@@ -224,7 +226,7 @@ impl ScriptClient for DataApiScriptClient {
         );
 
         let body = RequestBody {
-            query,
+            query: vec![query],
             limit: 1,
             script: script_name.into(),
             script_param: Some(serde_json::to_string(&parameter)?),
