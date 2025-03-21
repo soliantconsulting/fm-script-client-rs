@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.2.0...v1.2.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* **data-api:** add missing body to session request and fix query ([c55c6c1](https://github.com/soliantconsulting/fm-script-client-rs/commit/c55c6c1f8ac6117dae812b98cef2be7ec3a9561d))
+
 # [1.2.0](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.1.0...v1.2.0) (2025-03-20)
 
 
