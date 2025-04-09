@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use percent_encoding::percent_decode_str;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -176,17 +177,18 @@ impl TryFrom<Url> for Connection {
     ///     .unwrap();
     /// ```
     fn try_from(url: Url) -> Result<Self, Self::Error> {
+        let decode = |value: &str| -> Result<String, Error> {
+            Ok(percent_decode_str(value)
+                .decode_utf8()
+                .map_err(|_| Error::InvalidConnectionUrl)?
+                .to_string())
+        };
+
         Ok(Connection {
-            hostname: url
-                .host_str()
-                .ok_or_else(|| Error::InvalidConnectionUrl)?
-                .to_string(),
-            database: url.path()[1..].to_string(),
-            username: url.username().to_string(),
-            password: url
-                .password()
-                .ok_or_else(|| Error::InvalidConnectionUrl)?
-                .to_string(),
+            hostname: decode(url.host_str().ok_or_else(|| Error::InvalidConnectionUrl)?)?,
+            database: decode(&url.path()[1..])?,
+            username: decode(url.username())?,
+            password: decode(url.password().ok_or_else(|| Error::InvalidConnectionUrl)?)?,
             port: url.port(),
             disable_tls: url.scheme() == "http",
         })

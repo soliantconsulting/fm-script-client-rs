@@ -183,6 +183,7 @@ version = "1.2.0"
 dependencies = [
  "async-trait",
  "mockito",
+ "percent-encoding",
  "reqwest",
  "serde",
  "serde_json",
