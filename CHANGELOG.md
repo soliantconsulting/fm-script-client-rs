@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.2.1...v1.2.2) (2025-04-09)
+
+
+### Bug Fixes
+
+* decode URL parts when building connection ([7b6f53a](https://github.com/soliantconsulting/fm-script-client-rs/commit/7b6f53a3608a61fa2c59de5646a83c3e3b4d651a))
+
 ## [1.2.1](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.2.0...v1.2.1) (2025-03-21)
 
 
