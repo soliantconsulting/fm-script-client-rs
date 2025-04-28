@@ -1,7 +1,7 @@
+use crate::result::ScriptResultDeserialize;
 use crate::{Connection, Error, FileMakerError, ScriptClient};
 use async_trait::async_trait;
 use reqwest::Client;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
@@ -49,7 +49,7 @@ struct RequestBody<T> {
 #[serde(rename_all = "camelCase")]
 struct ScriptResult {
     code: i64,
-    result_parameter: Value,
+    result_parameter: Option<Value>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -65,7 +65,7 @@ struct ErrorResponseBody {
 
 #[async_trait]
 impl ScriptClient for ODataApiScriptClient {
-    async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
+    async fn execute<T: ScriptResultDeserialize, P: Serialize + Send + Sync>(
         &self,
         script_name: impl Into<String> + Send,
         parameter: Option<P>,
@@ -108,11 +108,14 @@ impl ScriptClient for ODataApiScriptClient {
             if result.script_result.code != 0 {
                 return Err(Error::ScriptFailure {
                     code: result.script_result.code,
-                    data: result.script_result.result_parameter.to_string(),
+                    data: result
+                        .script_result
+                        .result_parameter
+                        .map(|value| value.to_string()),
                 });
             }
 
-            let result: T = serde_json::from_value(result.script_result.result_parameter)?;
+            let result = T::from_value(result.script_result.result_parameter)?;
             return Ok(result);
         }
 

@@ -1,13 +1,14 @@
+use crate::result::ScriptResultDeserialize;
 use async_trait::async_trait;
 use percent_encoding::percent_decode_str;
 use reqwest::StatusCode;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use url::Url;
 
 pub mod data_api;
 pub mod odata_api;
+pub mod result;
 
 #[async_trait]
 pub trait ScriptClient {
@@ -55,14 +56,14 @@ pub trait ScriptClient {
     ///     assert_eq!(result.success, true);
     /// }
     /// ```
-    async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
+    async fn execute<T: ScriptResultDeserialize, P: Serialize + Send + Sync>(
         &self,
         script_name: impl Into<String> + Send,
         parameter: Option<P>,
     ) -> Result<T, Error>;
 
     /// Convenience method to execute a script without a parameter.
-    async fn execute_without_parameter<T: DeserializeOwned>(
+    async fn execute_without_parameter<T: ScriptResultDeserialize>(
         &self,
         script_name: &str,
     ) -> Result<T, Error> {
@@ -85,7 +86,7 @@ pub enum Error {
     FileMaker(FileMakerError),
 
     #[error("FileMaker script returned an error")]
-    ScriptFailure { code: i64, data: String },
+    ScriptFailure { code: i64, data: Option<String> },
 
     #[error("FileMaker did not respond with an access token")]
     MissingAccessToken,
@@ -105,7 +106,7 @@ pub struct FileMakerError {
 
 /// Connection details for script clients.
 ///
-/// Defines the credentials, hostname and database to connect to.
+/// Defines the credentials, hostname, and database to connect to.
 #[derive(Debug, Clone)]
 pub struct Connection {
     hostname: String,

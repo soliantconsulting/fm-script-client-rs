@@ -1,7 +1,7 @@
+use crate::result::ScriptResultDeserialize;
 use crate::{Connection, Error, FileMakerError, ScriptClient};
 use async_trait::async_trait;
 use reqwest::{Client, Response};
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -19,7 +19,7 @@ use url::Url;
 /// which the actual script execution will be added on top. It is important that this `find`
 /// succeeds, otherwise a FileMaker error will be thrown.
 ///
-/// Ideally you just create simple layout with a single field and a single record.
+/// Ideally, you create a simple layout with a single field and a single record.
 pub struct ScriptLayoutContext {
     layout: String,
     search_field: String,
@@ -55,8 +55,8 @@ impl ScriptLayoutContext {
 /// used for other reasons. Otherwise, you should use the
 /// [`crate::odata_api::ODataApiScriptClient`].
 ///
-/// When using the Data API client, you must specify a [`ScriptLayoutContext`] in order to execute
-/// script calls. See its documentation for further details.
+/// When using the Data API client, you must specify a [`ScriptLayoutContext`] to execute script
+/// calls. See its documentation for further details.
 pub struct DataApiScriptClient {
     connection: Arc<Connection>,
     context: Arc<ScriptLayoutContext>,
@@ -200,7 +200,13 @@ struct RequestBody<T> {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ResponseBody {
-    script_result: String,
+    response: InnerResponse,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct InnerResponse {
+    script_result: Option<String>,
     script_error: String,
 }
 
@@ -211,7 +217,7 @@ struct ErrorResponseBody {
 
 #[async_trait]
 impl ScriptClient for DataApiScriptClient {
-    async fn execute<T: DeserializeOwned, P: Serialize + Send + Sync>(
+    async fn execute<T: ScriptResultDeserialize, P: Serialize + Send + Sync>(
         &self,
         script_name: impl Into<String> + Send,
         parameter: Option<P>,
@@ -245,16 +251,16 @@ impl ScriptClient for DataApiScriptClient {
         let status = response.status();
 
         if status.is_success() {
-            let result: ResponseBody = response.json().await?;
+            let ResponseBody { response } = response.json().await?;
 
-            if result.script_error != "0" {
+            if response.script_error != "0" {
                 return Err(Error::ScriptFailure {
-                    code: result.script_error.parse().unwrap_or(-1),
-                    data: result.script_result,
+                    code: response.script_error.parse().unwrap_or(-1),
+                    data: response.script_result,
                 });
             }
 
-            let result: T = serde_json::from_str(&result.script_result)?;
+            let result = T::from_string(response.script_result)?;
             return Ok(result);
         }
 
