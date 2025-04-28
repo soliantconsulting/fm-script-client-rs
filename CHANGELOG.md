@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.2.2...v1.2.3) (2025-04-28)
+
+
+### Bug Fixes
+
+* introdocue Void type to allow ignoring script results ([8730606](https://github.com/soliantconsulting/fm-script-client-rs/commit/873060633efe1d52123453e713ced5bf086f83b9))
+
 ## [1.2.2](https://github.com/soliantconsulting/fm-script-client-rs/compare/v1.2.1...v1.2.2) (2025-04-09)
 
 
